@@ -15,7 +15,7 @@ export const getProblems = async (req, res) => {
     } else min = parseInt(minRating);
     if (isNaN(maxRating)) {
       max = 3500;
-    } else min = parseInt(maxRating);
+    } else max = parseInt(maxRating);
     filter.rating = { $gte: min, $lte: max };
     const sort = {};
     if (order === "BY_RATING_ASC") {
