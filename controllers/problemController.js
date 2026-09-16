@@ -72,6 +72,8 @@ export const postProblem = async (req, res, next) => {
     });
     return res.status(201).send("problem has been created successfully");
   } catch (error) {
+    if(error.name === "ValidationError")
+      return res.status(400).send(Object.values(error.errors)[0].message);
     return res.status(500).send("internal server error");
   }
 };
