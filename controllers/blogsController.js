@@ -42,6 +42,8 @@ export const postBlog = async (req, res) => {
     });
     return res.status(201).send("blog has been posted successfully");
   } catch (error) {
+    if(error.name === "ValidationError")
+      return res.status(400).send(Object.values(error.errors)[0].message);
     return res.status(500).send("internal server error");
   }
 };
@@ -77,6 +79,8 @@ export const updateBlog = async (req, res) => {
     await blog.save();
     return res.status(200).send("blog has been updated successfully");
   } catch (error) {
+    if(error.name === "ValidationError")
+      return res.status(400).send(Object.values(error.errors)[0].message);
     return res.status(500).send("internal server error");
   }
 };
