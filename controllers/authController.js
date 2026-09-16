@@ -39,6 +39,8 @@ export const registerController = async (req, res) => {
     });
     return res.status(201).send("registered successfully");
   } catch (error) {
+    if(error.name === "ValidationError")
+      return res.status(400).send(Object.values(error.errors)[0].message);
     return res.status(500).send("internal server error");
   }
 };
