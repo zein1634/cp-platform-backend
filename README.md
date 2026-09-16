@@ -1,50 +1,75 @@
 # Competitive Programming Platform API
 
-A robust, highly secure RESTful backend API designed to power a competitive programming platform. This system handles user authentication, advanced Role-Based Access Control (RBAC), algorithmic problem datasets, and a rating-gated community blogging system.
+A robust, highly secure RESTful backend API designed to power a competitive programming platform. This system handles user authentication, Role-Based Access Control (RBAC), algorithmic problem datasets, and a rating-gated community blogging system.
 
 ## 🚀 Tech Stack
 
-* Runtime Environment: Node.js
-* Web Framework: Express.js
-* Database: MongoDB
-* Object Data Modeling (ODM): Mongoose
-* Authentication & Security: JSON Web Tokens (JWT), bcrypt
+- Runtime Environment: Node.js
+- Web Framework: Express.js
+- Database: MongoDB
+- Object Data Modeling (ODM): Mongoose
+- Authentication & Security: JSON Web Tokens (JWT), bcrypt
 
 ## ⚙️ Core Architecture & Features
 
 ### 1. Advanced Authentication & Session Management
-* Dual Login: Users can authenticate using either their unique competitive programming handle or their email address.
-* Password Cryptography: All user passwords are automatically salted and hashed using bcrypt before database insertion.
-* Stateless Authentication: Implemented JWT-based authentication with HTTP-only cookies to manage access tokens and refresh tokens, neutralizing Cross-Site Scripting (XSS) attack vectors.
+
+- Dual Login: Users can authenticate using either their unique competitive programming handle or their email address.
+- Password Cryptography: Passwords are salted and hashed with bcrypt before database insertion.
+- Stateless Authentication: JWT-based auth with HTTP-only cookies — a short-lived access token (15 min) and a rotating refresh token (7 days), whose hash is stored in the database.
 
 ### 2. Role-Based Access Control (RBAC) & Middleware
-* Custom Auth Middleware: Developed Express middlewares to intercept requests, decode JWTs, and seamlessly attach user contexts to the request pipeline.
-* Tiered Authorization: Granular access control distinguishing between standard users, rated competitive programmers, and platform administrators.
+
+- Custom Auth Middleware: Express middlewares decode JWTs and attach the user context to the request pipeline.
+- Tiered Authorization: Distinguishes between standard users, rated competitive programmers, and staff members.
 
 ### 3. Rating-Gated Blogging & Commenting System
-* Community Features: Engineered a full CRUD system for user blogs and hierarchical comments.
-* Rating-Based Authorization: Leveraged user competitive programming ratings to gate content creation. Only users who have achieved a certified rating threshold are authorized to publish community blogs.
-* Admin Moderation & Data Integrity: Implemented a soft-delete architecture. Administrators can remove inappropriate blogs or comments from the public view without permanently erasing the records from the MongoDB database, preserving data for audits.
+
+- Full CRUD for user blogs and comments.
+- Only users with a rating (non-null) can publish blogs.
+- Only the original author or a staff member can edit/delete a blog or comment.
+- Deletion is a soft-delete: records stay in MongoDB but are hidden from public view.
 
 ### 4. Problem Management
-* NoSQL Schemas: Engineered structured Mongoose schemas to effectively store, query, and serve complex algorithmic problem descriptions, constraints, and metadata.
 
-## 📡 Key API Endpoints (Overview)
+- Mongoose schemas to store, filter (by tags/rating), and sort algorithmic problems.
 
-| HTTP Method | Endpoint | Description | Authorization Level |
-| :--- | :--- | :--- | :--- |
-| POST | /api/auth/login | Authenticate user & set cookies | Public |
-| POST | /api/auth/refresh | Generate new access token | Secure |
-| GET | /api/problems | Fetch all algorithmic problems | Public |
-| POST | /api/blogs | Create a new community blog | Rated User Only |
-| POST | /api/blogs/:id/comments | Post a comment on a blog | Secure |
-| DELETE| /api/blogs/:id | Soft-delete a blog post | Admin Only |
-| DELETE| /api/comments/:id| Soft-delete a comment | Admin Only |
+## 📡 Key API Endpoints
+
+> Base URL: /codeforces
+
+| HTTP Method | Endpoint | Description | Authorization |
+|---|---|---|---|
+| POST | /register | Register a new user | Public |
+| POST | /login | Authenticate & set cookies | Public |
+| POST | /auth/token | Rotate the access/refresh token pair | Valid refresh-token cookie |
+| POST | /auth/logout | Revoke refresh token & clear cookies | Public |
+| GET | /problemset | List problems (filter/sort by tags, rating, order) | Public |
+| GET | /problem/:id | Get a single problem | Public |
+| POST | /problemset | Create a new problem | Staff Only |
+| GET | /blogs | List latest blogs | Public |
+| GET | /blog/:blogId | Get a single blog with its comments | Public |
+| POST | /blogs | Create a new blog | Rated User Only |
+| PATCH | /blog/:blogId | Update a blog | Author or Staff |
+| DELETE | /blog/:blogId | Soft-delete a blog | Author or Staff |
+| POST | /blog/:blogId/comments | Post a comment on a blog | Logged-in User |
+| PATCH | /comment/:id | Update a comment | Author or Staff |
+| DELETE | /comment/:id | Soft-delete a comment | Author or Staff |
 
 ## 🛠 Local Development Setup
 
-To run this project locally on your machine:
-
 1. Clone the repository:
-   ```bash
-   git clone [https://github.com/zein1634/cp-platform-backend.git](https://github.com/zein1634/cp-platform-backend.git)
+git clone https://github.com/zein1634/cp-platform-backend.git
+cd cp-platform-backend
+2. Install dependencies:
+npm install
+3. Create a .env file in the project root:
+MONGO_URI=your_mongodb_connection_string
+PORT=3000
+SECRET_KEY=your_access_token_secret
+REFRESH_SECRET_KEY=your_refresh_token_secret
+NODE_ENV=development
+4. Run the server:
+npm run dev
+or in production mode:
+npm start
