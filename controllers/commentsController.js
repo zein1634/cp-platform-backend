@@ -23,6 +23,8 @@ export const postComment = async (req, res) => {
     });
     return res.status(201).send("comment has been posted successfully");
   } catch (error) {
+    if(error.name === "ValidationError")
+      return res.status(400).send(Object.values(error.errors)[0].message);
     return res.status(500).send("internal server error");
   }
 };
@@ -57,6 +59,8 @@ export const updateComment = async (req, res) => {
     await comment.save();
     return res.status(200).send("comment has been edited successfully");
   } catch (error) {
+    if(error.name === "ValidationError")
+      return res.status(400).send(Object.values(error.errors)[0].message);
     return res.status(500).send("internal server error");
   }
 };
