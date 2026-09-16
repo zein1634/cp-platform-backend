@@ -24,5 +24,5 @@ app.use(cookieParser());
 app.use("/codeforces", router);
 
 app.listen(port, () => {
-  console.log(`life is shitty especially if ur running on port ${port}`);
+  console.log(`running on port ${port}`);
 });
